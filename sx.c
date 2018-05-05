@@ -29,6 +29,7 @@ CPU Inspiration From: https://gist.github.com/EightAndAHalfTails/1347738
 #include "os.h"
 #include "color.h" //Colours used to change colour of drawings
 #include "sx.h"
+#include <util/delay.h>
 
 sxb_t board[10]; //Indexed at 1, 0 not used, really not sure why I've done this
 sxb_t current_player;
@@ -40,6 +41,39 @@ int main(void)
     os_add_task(check_switches, 100, 1); //schedule os to check switches every 100ms
     boolean restart = false;
 
+    rectangle rect;
+    rect.top = 0; 
+    rect.bottom = 240;
+    rect.left = 0;
+    rect.right = 320;
+    fill_rectangle(rect, GRAY_0);
+
+    display_string("\n");
+    display_string("\n");
+    display_string("\n");
+    display_string("\n");
+    display_string("          _____\n");                               
+    display_string("         /  ___|\n");
+    display_string("         \\ `--.  __ _ _   _  __ _ _ __ ___  ___\n");
+    display_string("          `--. \\/ _` | | | |/ _` | '__/ _ \\/ __|\n");
+    display_string("         /\\__/ / (_| | |_| | (_| | | |  __/\\__ \\\n");
+    display_string("         \\____/ \\__, |\\__,_|\\__,_|_|  \\___||___/\n");
+    display_string("                   | |\n");
+    display_string("                   |_|\n");
+    display_string("                                 _\n");
+    display_string("                                | |\n");
+    display_string("                  __ _ _ __   __| |\n");
+    display_string("                 / _` | '_ \\ / _` |\n");
+    display_string("                | (_| | | | | (_| |\n");
+    display_string("                 \\__,_|_| |_|\\__,_|\n");                                                                       
+    display_string("          _____\n");
+    display_string("         /  __ \\\n");
+    display_string("         | /  \\/_ __ ___  ___ ___  ___  ___\n");
+    display_string("         | |   | '__/ _ \\/ __/ __|/ _ \\/ __|\n");
+    display_string("         | \\__/\\ | | (_) \\__ \\__ \\  __/\\__ \\\n");
+    display_string("          \\____/_|  \\___/|___/___/\\___||___/\n");
+    _delay_ms(2000);
+    
     do
     {
         restart = false;
@@ -345,6 +379,9 @@ void highlight_location(void)
         default : return;
     }
     fill_rectangle(rect, display.foreground); //display.foreground set to WHITE
+    // char buf[30];
+    // sprintf(buf, "\n\n\n\n\n\n\nBoard: %d\nLocation: %d", board[location], location);
+    // display_string(buf);
 }
 
 /* Wait until centre button pressed in blank space */
@@ -364,7 +401,18 @@ uint8_t make_computer_move(void)
     uint8_t mask[8][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {1, 4, 7}, {2, 5, 8}, {3, 6, 9}, {1, 5, 9},{3, 5, 7}};
     uint8_t i, j, keysquare1 = 0, keysquare2 = 0;
 
-    /* Check for winning or blocking opportunities */
+    /* Check for winning opportunities */
+    for(i=0; i < 8; i++) 
+    {
+        for(j = 0; j < 3; j++)
+        {
+            if((board[mask[i][j]] == board[mask[i][((j+1)%3)]]) && (board[mask[i][((j+2)%3)]] == blank) && (board[mask[i][j]] != blank) && (board[mask[i][j]] == cross))
+            {
+		            return mask[i][((j+2)%3)];
+            }
+        }
+    }
+    /* Check for blocking opportunities */
     for(i=0; i < 8; i++) 
     {
         for(j = 0; j < 3; j++)
